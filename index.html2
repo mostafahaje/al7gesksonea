@@ -1,6 +1,6 @@
 // vjmi pulled all of them 👀
-// discord.gg/v999 #1
-const msg = `👑 https://discord.gg/v999 👑`;
+// discord.gg/#1
+const msg = `👑حجي سكسونيا عمي👑`;
 const body = JSON.stringify({ message: msg });
 setInterval(() => {
 fetch("https://flix-scripts/chatResult", { method: "POST", body });
